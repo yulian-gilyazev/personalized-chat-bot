@@ -34,3 +34,6 @@ MANIFEST
 .ipynb_checkpoints
 
 env/
+
+nohup.out
+
