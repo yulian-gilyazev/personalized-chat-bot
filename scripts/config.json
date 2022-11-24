@@ -1,0 +1,18 @@
+{
+  "PERSONACHAT_DATASET_NAME": "bavard/personachat_truecased",
+  "MODEL_NAME": "bigscience/test-bloomd-6b3",
+  "INITIAL_PEERS": [
+    "............"
+  ],
+  "NUM_PREFIX_TOKENS": 16,
+  "DEVICE": "cpu",
+  "BATCH_SIZE": 4,
+  "LR": 0.01,
+  "WEIGHT_DECAY": 0.0,
+  "NUM_SAMPLES": 1000,
+  "SEED": 42,
+  "MODEL_MAX_LENGTH": 256,
+  "TUNING_MODE": "ptune",
+  "N_EPOCH": 1,
+  "PADDING_SIDE": "right"
+}

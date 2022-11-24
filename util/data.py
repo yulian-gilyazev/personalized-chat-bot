@@ -34,6 +34,8 @@ class OnePersonaDataset(Dataset):
     def __getitem__(self, idx):
         return self.input_ids[idx], self.history[idx], self.labels[idx]
 
+    # todo: shuffle
+
     def __len__(self):
         return len(self.data)
 
