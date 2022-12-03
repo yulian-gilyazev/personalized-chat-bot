@@ -26,7 +26,7 @@ class OnePersonaDataset(Dataset):
             self.labels = np.array(self.labels, dtype=int)
 
         if transforms is None:
-            self.history = ["\n-----\n".join(item) for item in self.history]
+            self.history = ["\n".join(item) for item in self.history]
         else:
             self.history = Parallel(n_jobs=n_jobs)(delayed(transforms)(item) for item in self.history)
         self.input_ids = tokenizer(self.history, padding='max_length', truncation=True)["input_ids"]
