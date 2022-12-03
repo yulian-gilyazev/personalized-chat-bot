@@ -5,14 +5,21 @@ from torch.optim import AdamW
 from transformers import get_scheduler
 import torch
 
+from util.metrics import perplexity
+
 
 class BloomTrainer:
-    def __init__(self, model, config, train_dataset, val_dataset, wandb_run=None):
+    DEFAULT_VAL_FREQ = 5
+
+    def __init__(self, model, config, train_dataset, val_dataset, wandb_run=None, val_freq=None):
         self.model = model
         self.config = config
         self.train_dataset = train_dataset
         self.val_dataset = val_dataset
         self.wandb_run = wandb_run
+        self.val_freq = val_freq
+        if self.val_freq is None:
+            self.val_freq = self.DEFAULT_VAL_FREQ
 
         self.train_loader = DataLoader(self.train_dataset,
                                        shuffle=True,
@@ -34,6 +41,7 @@ class BloomTrainer:
 
     def train(self):
         self.model.train()
+        iter_counter = 0
         for epoch in range(self.config.N_EPOCH):
             for batch in self.train_loader:
                 batch = {'input_ids': torch.stack(batch['input_ids']).T.to(self.config.DEVICE),
@@ -45,6 +53,10 @@ class BloomTrainer:
                 self.lr_scheduler.step()
                 self.optimizer.zero_grad()
                 self.wandb_run.log({'loss': loss})
+                iter_counter += 1
+                if (iter_counter + 1) % self.val_freq == 0:
+                    eval_perplexity = self.evaluate(perplexity())
+                    self.wandb_run.log({'perplexity': eval_perplexity})
 
     def evaluate(self, eval_fn):
         logits = []

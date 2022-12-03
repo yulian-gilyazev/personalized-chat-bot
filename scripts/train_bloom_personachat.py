@@ -4,7 +4,6 @@ import torch.cuda
 from datasets import load_dataset
 import json
 import os
-import sys
 import transformers
 from torch.utils.data import Subset
 import wandb
@@ -14,10 +13,9 @@ import gc
 from models.personality_clustering import PersonalityClustering
 from util.bloom_trainer import BloomTrainer
 from util.datasets import PersonaChatDataset
-from util.metrics import  perplexity
+from util.metrics import perplexity
 
-sys.path.insert(0, "../petals")
-from src.client.remote_model import DistributedBloomForCausalLM
+from petals.client.remote_model import DistributedBloomForCausalLM
 
 """Пример запуска
 python -m scripts.train_bloom_personachat --persona-ids 6 --config scripts/config.json --prompt-path data/models/
@@ -80,15 +78,19 @@ def main():
             reinit=True
         )
         if len(config.INITIAL_PEERS) == 0:
-            initial_peers = None
+            model = DistributedBloomForCausalLM.from_pretrained(
+                config.MODEL_NAME,
+                pre_seq_len=config.NUM_PREFIX_TOKENS,
+                tuning_mode=config.TUNING_MODE
+            ).to(config.DEVICE)
         else:
-            initial_peers = config.INITIAL_PEERS
-        model = DistributedBloomForCausalLM.from_pretrained(
-            config.MODEL_NAME,
-            initial_peers=initial_peers,
-            pre_seq_len=config.NUM_PREFIX_TOKENS,
-            tuning_mode=config.TUNING_MODE
-        ).to(config.DEVICE)
+            model = DistributedBloomForCausalLM.from_pretrained(
+                config.MODEL_NAME,
+                initial_peers=config.INITIAL_PEERS,
+                pre_seq_len=config.NUM_PREFIX_TOKENS,
+                tuning_mode=config.TUNING_MODE
+            ).to(config.DEVICE)
+
         trainer = BloomTrainer(model, config, train_dataset, val_dataset, wandb_run)
         trainer.train()
         perplexity_value = trainer.evaluate(perplexity)
@@ -111,7 +113,7 @@ def parse_args(args=None):
     parser.add_argument('--config', type=str, help='Path to training config file')
     parser.add_argument('--prompt-path', type=str,
                         help='Path to dir with trained soft prompts')
-    parser.add_argument('--wandb-project', type=str, default='test_bloom_personachat_v3')
+    parser.add_argument('--wandb-project', type=str, default='test_bloom_personachat_v4')
     args = parser.parse_args(args)
     return args
 
