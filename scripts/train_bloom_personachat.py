@@ -1,4 +1,6 @@
 import argparse
+
+import torch.cuda
 from datasets import load_dataset
 import json
 import os
@@ -7,6 +9,7 @@ import transformers
 from torch.utils.data import Subset
 import wandb
 import numpy as np
+import gc
 
 from models.personality_clustering import PersonalityClustering
 from util.bloom_trainer import BloomTrainer
@@ -76,9 +79,13 @@ def main():
             name=f'id{id}',
             reinit=True
         )
+        if len(config.INITIAL_PEERS) == 0:
+            initial_peers = None
+        else:
+            initial_peers = config.INITIAL_PEERS
         model = DistributedBloomForCausalLM.from_pretrained(
             config.MODEL_NAME,
-            initial_peers=config.INITIAL_PEERS,
+            initial_peers=initial_peers,
             pre_seq_len=config.NUM_PREFIX_TOKENS,
             tuning_mode=config.TUNING_MODE
         ).to(config.DEVICE)
@@ -87,6 +94,10 @@ def main():
         perplexity_value = trainer.evaluate(perplexity)
         trainer.save_model(prompt_path)
         wandb_run.log({'perplexity': perplexity_value, 'model_path': prompt_path})
+
+        del model
+        gc.collect()
+        torch.cuda.empty_cache()
 
 
 def parse_args(args=None):
@@ -100,7 +111,7 @@ def parse_args(args=None):
     parser.add_argument('--config', type=str, help='Path to training config file')
     parser.add_argument('--prompt-path', type=str,
                         help='Path to dir with trained soft prompts')
-    parser.add_argument('--wandb-project', type=str, default='test_bloom_personachat')
+    parser.add_argument('--wandb-project', type=str, default='test_bloom_personachat_v3')
     args = parser.parse_args(args)
     return args
 
