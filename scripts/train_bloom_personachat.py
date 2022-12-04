@@ -93,9 +93,9 @@ def main():
 
         trainer = BloomTrainer(model, config, train_dataset, val_dataset, wandb_run)
         trainer.train()
-        perplexity_value = trainer.evaluate(perplexity)
+        eval_perplexity = trainer.evaluate(perplexity)
         trainer.save_model(prompt_path)
-        wandb_run.log({'perplexity': perplexity_value, 'model_path': prompt_path})
+        wandb_run.log({'perplexity': eval_perplexity, 'model_path': prompt_path})
 
         del model
         gc.collect()
@@ -113,7 +113,7 @@ def parse_args(args=None):
     parser.add_argument('--config', type=str, help='Path to training config file')
     parser.add_argument('--prompt-path', type=str,
                         help='Path to dir with trained soft prompts')
-    parser.add_argument('--wandb-project', type=str, default='test_bloom_personachat_v4')
+    parser.add_argument('--wandb-project', type=str, default='test_bloom_personachat_176b_v2')
     args = parser.parse_args(args)
     return args
 

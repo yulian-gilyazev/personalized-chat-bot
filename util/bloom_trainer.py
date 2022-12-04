@@ -55,7 +55,7 @@ class BloomTrainer:
                 self.wandb_run.log({'loss': loss})
                 iter_counter += 1
                 if (iter_counter + 1) % self.val_freq == 0:
-                    eval_perplexity = self.evaluate(perplexity())
+                    eval_perplexity = self.evaluate(perplexity)
                     self.wandb_run.log({'perplexity': eval_perplexity})
 
     def evaluate(self, eval_fn):

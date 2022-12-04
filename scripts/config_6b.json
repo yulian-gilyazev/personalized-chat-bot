@@ -1,9 +1,7 @@
 {
   "PERSONACHAT_DATASET_NAME": "bavard/personachat_truecased",
   "MODEL_NAME": "bigscience/test-bloomd-6b3",
-  "INITIAL_PEERS": [
-    "............"
-  ],
+  "INITIAL_PEERS":["/ip4/193.106.95.184/tcp/31000/p2p/QmSg7izCDtowVTACbUmWvEiQZNY4wgCQ9T9Doo66K59X6q"],
   "NUM_PREFIX_TOKENS": 16,
   "DEVICE": "cpu",
   "BATCH_SIZE": 4,
