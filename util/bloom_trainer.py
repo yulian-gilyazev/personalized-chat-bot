@@ -1,9 +1,11 @@
 import sys
 
+import numpy as np
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
 from transformers import get_scheduler
 import torch
+
 
 from util.metrics import perplexity
 
@@ -11,7 +13,7 @@ from util.metrics import perplexity
 class BloomTrainer:
     DEFAULT_VAL_FREQ = 5
 
-    def __init__(self, model, config, train_dataset, val_dataset, wandb_run=None, val_freq=None):
+    def __init__(self, model, config, train_dataset, val_dataset, wandb_run=None, prompt_path=None, val_freq=None):
         self.model = model
         self.config = config
         self.train_dataset = train_dataset
@@ -20,6 +22,9 @@ class BloomTrainer:
         self.val_freq = val_freq
         if self.val_freq is None:
             self.val_freq = self.DEFAULT_VAL_FREQ
+        self.prompt_path = prompt_path
+
+        self.best_eval_metric_value = np.inf
 
         self.train_loader = DataLoader(self.train_dataset,
                                        shuffle=True,
@@ -57,6 +62,10 @@ class BloomTrainer:
                 if (iter_counter + 1) % self.val_freq == 0:
                     eval_perplexity = self.evaluate(perplexity)
                     self.wandb_run.log({'perplexity': eval_perplexity})
+                    if eval_perplexity < self.best_eval_metric_value:
+                        self.best_eval_metric_value = eval_perplexity
+                        self.save_model(self.prompt_path)
+                        print('Model saved')
 
     def evaluate(self, eval_fn):
         logits = []

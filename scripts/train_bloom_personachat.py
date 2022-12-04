@@ -91,10 +91,10 @@ def main():
                 tuning_mode=config.TUNING_MODE
             ).to(config.DEVICE)
 
-        trainer = BloomTrainer(model, config, train_dataset, val_dataset, wandb_run)
+        trainer = BloomTrainer(model, config, train_dataset, val_dataset, wandb_run, prompt_path)
         trainer.train()
         eval_perplexity = trainer.evaluate(perplexity)
-        trainer.save_model(prompt_path)
+        # trainer.save_model(prompt_path)
         wandb_run.log({'perplexity': eval_perplexity, 'model_path': prompt_path})
 
         del model
