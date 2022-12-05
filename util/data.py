@@ -30,11 +30,14 @@ class OnePersonaDataset(Dataset):
         else:
             self.history = Parallel(n_jobs=n_jobs)(delayed(transforms)(item) for item in self.history)
         self.input_ids = tokenizer(self.history, padding='max_length', truncation=True)["input_ids"]
+        self.indexes = np.arange(0, len(self.data))
 
     def __getitem__(self, idx):
+        idx = self.indexes[idx]
         return self.input_ids[idx], self.history[idx], self.labels[idx]
 
-    # todo: shuffle
+    def shuffle(self,):
+        np.random.shuffle(self.indexes)
 
     def __len__(self):
         return len(self.data)

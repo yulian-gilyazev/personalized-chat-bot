@@ -11,7 +11,8 @@ from util.metrics import perplexity
 
 
 class BloomTrainer:
-    DEFAULT_VAL_FREQ = 5
+    DEFAULT_VAL_FREQ = 2
+    ITERATION_LIMIT = 4
 
     def __init__(self, model, config, train_dataset, val_dataset, wandb_run=None, prompt_path=None, val_freq=None):
         self.model = model
@@ -24,7 +25,7 @@ class BloomTrainer:
             self.val_freq = self.DEFAULT_VAL_FREQ
         self.prompt_path = prompt_path
 
-        self.best_eval_metric_value = np.inf
+        self.best_loss = np.inf
 
         self.train_loader = DataLoader(self.train_dataset,
                                        shuffle=True,
@@ -62,10 +63,12 @@ class BloomTrainer:
                 if (iter_counter + 1) % self.val_freq == 0:
                     eval_perplexity = self.evaluate(perplexity)
                     self.wandb_run.log({'perplexity': eval_perplexity})
-                    if eval_perplexity < self.best_eval_metric_value:
-                        self.best_eval_metric_value = eval_perplexity
+                    if loss.item() < self.best_loss:
+                        self.best_loss = loss.item()
                         self.save_model(self.prompt_path)
                         print('Model saved')
+                if iter_counter >= self.ITERATION_LIMIT:
+                    return
 
     def evaluate(self, eval_fn):
         logits = []

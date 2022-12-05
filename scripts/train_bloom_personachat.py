@@ -12,7 +12,7 @@ import gc
 
 from models.personality_clustering import PersonalityClustering
 from util.bloom_trainer import BloomTrainer
-from util.datasets import PersonaChatDataset
+from util.data import PersonaChatDataset
 from util.metrics import perplexity
 
 from petals.client.remote_model import DistributedBloomForCausalLM
@@ -62,6 +62,7 @@ def main():
         if len(val_dataset) > MAX_VAL_DATA_SIZE:
             subset_indexes = np.random.choice(len(val_dataset), MAX_VAL_DATA_SIZE, replace=False)
             val_dataset = Subset(val_dataset, subset_indexes)
+        train_dataset.shuffle()
 
         wandb_run = wandb.init(
             project=args.wandb_project,
@@ -94,7 +95,7 @@ def main():
         trainer = BloomTrainer(model, config, train_dataset, val_dataset, wandb_run, prompt_path)
         trainer.train()
         eval_perplexity = trainer.evaluate(perplexity)
-        # trainer.save_model(prompt_path)
+        trainer.save_model(prompt_path)
         wandb_run.log({'perplexity': eval_perplexity, 'model_path': prompt_path})
 
         del model
@@ -113,7 +114,7 @@ def parse_args(args=None):
     parser.add_argument('--config', type=str, help='Path to training config file')
     parser.add_argument('--prompt-path', type=str,
                         help='Path to dir with trained soft prompts')
-    parser.add_argument('--wandb-project', type=str, default='test_bloom_personachat_176b_v2')
+    parser.add_argument('--wandb-project', type=str, default='test_bloom_personachat_176b_v3')
     args = parser.parse_args(args)
     return args
 
