@@ -62,7 +62,7 @@ def main():
         if len(val_dataset) > MAX_VAL_DATA_SIZE:
             subset_indexes = np.random.choice(len(val_dataset), MAX_VAL_DATA_SIZE, replace=False)
             val_dataset = Subset(val_dataset, subset_indexes)
-        train_dataset.shuffle()
+        # train_dataset.shuffle()
 
         wandb_run = wandb.init(
             project=args.wandb_project,

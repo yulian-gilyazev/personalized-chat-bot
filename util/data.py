@@ -30,14 +30,12 @@ class OnePersonaDataset(Dataset):
         else:
             self.history = Parallel(n_jobs=n_jobs)(delayed(transforms)(item) for item in self.history)
         self.input_ids = tokenizer(self.history, padding='max_length', truncation=True)["input_ids"]
-        self.indexes = np.arange(0, len(self.data))
 
     def __getitem__(self, idx):
-        idx = self.indexes[idx]
-        return self.input_ids[idx], self.history[idx], self.labels[idx]
-
-    def shuffle(self,):
-        np.random.shuffle(self.indexes)
+        return {'input_ids': self.input_ids[idx],
+                'labels': self.input_ids[idx],
+                'example': self.history[idx],
+                'class': self.labels[idx]}
 
     def __len__(self):
         return len(self.data)
@@ -46,7 +44,7 @@ class OnePersonaDataset(Dataset):
 class PersonaChatDataset(Dataset):
     DEFAULT_DATASET_NAME = "bavard/personachat_truecased"
 
-    def __init__(self, clustering, dataset, tokenizer, dataset_name=None):
+    def __init__(self, clustering, dataset, tokenizer):
         super().__init__()
 
         self.dataset = dataset

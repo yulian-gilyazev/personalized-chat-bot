@@ -11,8 +11,8 @@ from util.metrics import perplexity
 
 
 class BloomTrainer:
-    DEFAULT_VAL_FREQ = 2
-    ITERATION_LIMIT = 4
+    DEFAULT_VAL_FREQ = 5
+    ITERATION_LIMIT = 50
 
     def __init__(self, model, config, train_dataset, val_dataset, wandb_run=None, prompt_path=None, val_freq=None):
         self.model = model
