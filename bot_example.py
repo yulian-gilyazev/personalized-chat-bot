@@ -22,8 +22,9 @@ def main():
     personality_clustering = PersonalityClustering()
     personality_clustering.load('./data/models/personality_clustering_500_paraphrase-MiniLM-L6-v2_k-means.pkl')
 
+    hook = lambda dct: {int(k): v for k, v in dct.items()}
     with open('prompt_paths.json', 'r') as f:
-        prompt_paths = json.load(f)
+        prompt_paths = json.load(f, object_hook=hook)
 
     pm = PersonalityManager(prompt_paths, personality_clustering)
     prompt_path, closest_persona = pm.get_prompt(persona_description)
