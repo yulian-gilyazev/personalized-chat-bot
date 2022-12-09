@@ -11,6 +11,6 @@
   "SEED": 42,
   "MODEL_MAX_LENGTH": 256,
   "TUNING_MODE": "ptune",
-  "N_EPOCH": 1,
+  "N_EPOCH": 3,
   "PADDING_SIDE": "right"
 }
