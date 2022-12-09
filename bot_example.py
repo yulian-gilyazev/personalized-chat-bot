@@ -16,7 +16,8 @@ def load_config(path):
 prompt_paths = {
     125: './data/models/176b/125_persona_prompt_embedding.pt',
     214: './data/models/176b/214_persona_prompt_embedding.pt',
-    364: './data/models/176b/364_persona_prompt_embedding.pt'
+    364: './data/models/176b/364_persona_prompt_embedding.pt',
+    451: './data/models/176b/451_persona_prompt_embedding.pt'
 }
 
 def main():
@@ -46,7 +47,7 @@ def main():
 
     chatbot = PersonalizedChatBot(model, tokenizer, generation_config=generation_config)
     chatbot.load_prompt(prompt_path)
-    print('Done!, You can start a dialogue.')
+    print('Done! You can start a dialogue.')
     try:
         while True:
             text = input('You: ')
