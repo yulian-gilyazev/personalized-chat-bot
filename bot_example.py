@@ -13,12 +13,6 @@ def load_config(path):
         config = json.load(f)
     return argparse.Namespace(**config)
 
-prompt_paths = {
-    125: './data/models/176b/125_persona_prompt_embedding.pt',
-    214: './data/models/176b/214_persona_prompt_embedding.pt',
-    364: './data/models/176b/364_persona_prompt_embedding.pt',
-    451: './data/models/176b/451_persona_prompt_embedding.pt'
-}
 
 def main():
     greating = 'Describe the person you want to talk:'
@@ -27,6 +21,10 @@ def main():
     print('Cool! wait a few seconds...')
     personality_clustering = PersonalityClustering()
     personality_clustering.load('./data/models/personality_clustering_500_paraphrase-MiniLM-L6-v2_k-means.pkl')
+
+    with open('prompt_paths.json', 'r') as f:
+        prompt_paths = json.load(f)
+
     pm = PersonalityManager(prompt_paths, personality_clustering)
     prompt_path, closest_persona = pm.get_prompt(persona_description)
     print(f'The closest personality is: {closest_persona}')
