@@ -1,6 +1,6 @@
 import argparse
 
-import torch.cuda
+import torch
 from datasets import load_dataset
 import json
 import os
@@ -9,6 +9,7 @@ from torch.utils.data import Subset
 import wandb
 import numpy as np
 import gc
+from enum import enum
 
 from models.personality_clustering import PersonalityClustering
 from util.bloom_trainer import BloomTrainer
@@ -62,7 +63,7 @@ def main():
         if len(val_dataset) > MAX_VAL_DATA_SIZE:
             subset_indexes = np.random.choice(len(val_dataset), MAX_VAL_DATA_SIZE, replace=False)
             val_dataset = Subset(val_dataset, subset_indexes)
-        # train_dataset.shuffle()
+        train_dataset.shuffle()
 
         wandb_run = wandb.init(
             project=args.wandb_project,
@@ -73,9 +74,10 @@ def main():
                 'device': config.DEVICE,
                 'model_name': config.MODEL_NAME,
                 'n_epoch': config.N_EPOCH,
-                'honest_validation': honest_validation
+                'honest_validation': honest_validation,
+                'num_prefix_tokens': config.NUM_PREFIX_TOKENS,
             },
-            name=f'id{id}',
+            name=f'persona_id{id}',
             reinit=True
         )
         if len(config.INITIAL_PEERS) == 0:
